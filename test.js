@@ -1,4 +1,4 @@
-let modem = require('./modem.js').Modem()
+var modem = require('./modem-commands').Modem()
 //19200 // 115200
 let modemOptions = {
   baudRate: 115200,
@@ -14,66 +14,62 @@ let modemOptions = {
   onNewMessage: true,
   onNewMessageIndicator: true
 }
-let device = '/dev/tty.usbserial10'
+// let device = '/dev/tty.usbserial10'
 
-modem.listOpenPorts()
-  .then(result => {
-    console.log('listOpenPorts:result', result)
-  })
-  .catch(error => {
-    console.log('listOpenPorts:error', error)
-  })
-//
+// modem.listOpenPorts()
+//   .then(result => {
+//     console.log('listOpenPorts:result', result)
+//   })
+//   .catch(error => {
+//     console.log('listOpenPorts:error', error)
+//   })
+
+modem.listOpenPorts((err, result)=>{
+  console.log(result)
+})
+var device = '/dev/tty.usbserial'
 setInterval(() => {
   if (!modem.isOpened) {
-    // modem.open(device, modemOptions, (response) => {
-    //   // if(response.err){
-    //   //   console.log(err)
-    //   // }else{
-    //   //   console.log()
-    //   // }
-    // })
     modem.open(device,modemOptions, (err,result) => {
       console.log(result)
     })
-
   } else {
     console.log(`Serial port ${modem.port.path} is open`)
   }
 }, 6000)
-
-
-modem.on('open', (data) => {
-  modem.initializeModem((response) => {
-    console.log(response)
-    console.log('init')
-
-  })
-
-  modem.modemMode((response) => {
-    console.log(response)
-    console.log('SMS')
-
-
-  }, "PDU")
-
-  // modem.checkSIMMemory(function(response){
-  //   console.log(response)
-  // })
-  //
-  modem.deleteAllSimMessages(function(response){
-    console.log(response)
-  })
-
-  try{
-    modem.sendSMS("09498893309", "Zab", function(response){
-      console.log(response)
-    })
-  }catch(e){
-    console.log(e)
-  }
-
-
+//
+//
+// modem.on('open', (data) => {
+//   modem.initializeModem((response) => {
+//     console.log(response)
+//     console.log('init')
+//
+//   })
+//
+//   modem.modemMode((response) => {
+//     console.log(response)
+//     console.log('SMS')
+//
+//
+//   }, "PDU")
+//
+//   // modem.checkSIMMemory(function(response){
+//   //   console.log(response)
+//   // })
+//   //
+//   modem.deleteAllSimMessages(function(response){
+//     console.log(response)
+//   })
+//
+//   try{
+//     modem.sendSMS("09498893309", "Zab", function(response){
+//       console.log(response)
+//     })
+//   }catch(e){
+//     console.log(e)
+//   }
+//
+//
 
   // modem.sendSMS("09498893309", "Zab", function(response){
   //   console.log(response)
@@ -188,36 +184,36 @@ modem.on('open', (data) => {
   //   console.log(e)
   // }
 
-})
-
-modem.on('onSendingMessage', (data) => {
-  console.log('onSendingMessage')
-  console.log(data)
-})
+// })
 //
-modem.on('onMessageSent', (data) => {
-  console.log('onMessageSent')
-  console.log(data)
-})
-
-modem.on('onMessageSendingFailed', (data) => {
-  console.log('Fail')
-  console.log(data)
-})
-
+// modem.on('onSendingMessage', (data) => {
+//   console.log('onSendingMessage')
+//   console.log(data)
+// })
+// //
+// modem.on('onMessageSent', (data) => {
+//   console.log('onMessageSent')
+//   console.log(data)
+// })
 //
-modem.on('onNewMessage', (data) => {
-  console.log(data)
-})
+// modem.on('onMessageSendingFailed', (data) => {
+//   console.log('Fail')
+//   console.log(data)
+// })
 //
-modem.on('onNewMessageIndicator', (data) => {
-  console.log('onNewMessageIndicator')
-  console.log(data)
-})
-
-modem.on('onModemActivityStream', (data) => {
-  console.log(data)
-})
+// //
+// modem.on('onNewMessage', (data) => {
+//   console.log(data)
+// })
+// //
+// modem.on('onNewMessageIndicator', (data) => {
+//   console.log('onNewMessageIndicator')
+//   console.log(data)
+// })
+//
+// modem.on('onModemActivityStream', (data) => {
+//   console.log(data)
+// })
 
 //
 //dev/tty.usbserial

@@ -1,0 +1,28 @@
+{
+  "name": "modem-commands",
+  "version": "0.0.4",
+  "description": "Allows you to use your GSM modems on node. It offers a very simple API",
+  "main": "modem-commands/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reyespaolo/modem-commands.git"
+  },
+  "keywords": [
+    "Modem",
+    "AT",
+    "Commands"
+  ],
+  "author": "Paolo Brainard M. Reyes <xreyes.paolox@gmail.com> (http://360logix.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reyespaolo/modem-commands/issues"
+  },
+  "homepage": "https://github.com/reyespaolo/modem-commands#readme",
+  "dependencies": {
+    "pdu": "^1.1.0",
+    "serialport": "^6.2.0"
+  }
+}
