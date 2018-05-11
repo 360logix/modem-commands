@@ -16,13 +16,18 @@ let modemOptions = {
 }
 // let device = '/dev/tty.usbserial10'
 
-modem.listOpenPorts()
-  .then(result => {
-    console.log('listOpenPorts:result', result)
-  })
-  .catch(error => {
-    console.log('listOpenPorts:error', error)
-  })
+// modem.listOpenPorts()
+//   .then(result => {
+//     console.log('listOpenPorts:result', result)
+//   })
+//   .catch(error => {
+//     console.log('listOpenPorts:error', error)
+//   })
+
+modem.listOpenPorts((err, result)=>{
+  console.log(result)
+})
+
 // //
 // setInterval(() => {
 //   if (!modem.isOpened) {
