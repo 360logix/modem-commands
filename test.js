@@ -27,25 +27,16 @@ let modemOptions = {
 modem.listOpenPorts((err, result)=>{
   console.log(result)
 })
-
-// //
-// setInterval(() => {
-//   if (!modem.isOpened) {
-//     // modem.open(device, modemOptions, (response) => {
-//     //   // if(response.err){
-//     //   //   console.log(err)
-//     //   // }else{
-//     //   //   console.log()
-//     //   // }
-//     // })
-//     modem.open(device,modemOptions, (err,result) => {
-//       console.log(result)
-//     })
-//
-//   } else {
-//     console.log(`Serial port ${modem.port.path} is open`)
-//   }
-// }, 6000)
+var device = '/dev/tty.usbserial'
+setInterval(() => {
+  if (!modem.isOpened) {
+    modem.open(device,modemOptions, (err,result) => {
+      console.log(result)
+    })
+  } else {
+    console.log(`Serial port ${modem.port.path} is open`)
+  }
+}, 6000)
 //
 //
 // modem.on('open', (data) => {

@@ -22,6 +22,9 @@ let modemOptions = {
   onNewMessageIndicator: true
 }
 
+let modem = require('modem-commands').Modem()
+
+//LIST ALL OPEN PORTS//
 modem.listOpenPorts((err, result)=>{
   console.log(result)
 })
@@ -41,4 +44,21 @@ Output:
     locationId: undefined,
     vendorId: undefined,
     productId: undefined } ]
+
+//// Connect to the Modem ///////
+
+let device = '/dev/tty.usbserial'
+
+modem.open(device,modemOptions, (err,result) => {
+  console.log(result)
+})
+
+Output:
+{ status: 'success',
+  request: 'connectModem',
+  data: {
+    modem: '/dev/tty.usbserial',
+    status: 'Online'
+  } 
+}
 ```
