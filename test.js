@@ -1,4 +1,4 @@
-let modem = require('./index.js').Modem()
+var modem = require('./modem-commands').Modem()
 //19200 // 115200
 let modemOptions = {
   baudRate: 115200,
@@ -14,7 +14,7 @@ let modemOptions = {
   onNewMessage: true,
   onNewMessageIndicator: true
 }
-let device = '/dev/tty.usbserial10'
+// let device = '/dev/tty.usbserial10'
 
 modem.listOpenPorts()
   .then(result => {
