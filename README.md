@@ -59,6 +59,41 @@ Output:
   data: {
     modem: '/dev/tty.usbserial',
     status: 'Online'
-  } 
+  }
 }
+```
+
+## Events
+
+```
+modem.on('open', (data) => {
+  console.log(data)
+});
+
+modem.on('onSendingMessage', (data) => {
+  console.log(data)
+})
+
+modem.on('onMessageSent', (data) => {
+  console.log(data)
+})
+
+modem.on('onMessageSendingFailed', (data) => {
+  console.log(data)
+})
+
+modem.on('onNewMessage', (data) => {
+  console.log(data)
+})
+
+modem.on('onNewMessageIndicator', (data) => {
+  console.log(data)
+})
+
+modem.on('onModemActivityStream', (data) => {
+  console.log(data)
+})
+
+
+
 ```
