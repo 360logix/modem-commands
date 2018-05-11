@@ -80,23 +80,17 @@ const Modem = function() {
     // }
 
     modem.port = SerialPort(device, options, (error) => {
+      let result = {status: 'success', request: 'connectModem', data: {modem: modem.port.path,status: 'Online'}}
       if (error) {
         callback(error)
       } else {
-        callback(null, {
-          status: 'success',
-          request: 'connectModem',
-          data: {
-            modem: modem.port.path,
-            status: 'Online'
-          }
-        })
+        modem.emit('open', result)
+        callback(null, result)
       }
     })
 
     modem.port.on('open', function() {
       modem.isOpened = true
-      modem.emit('open', modem.port.path)
       modem.port.on('data', modem.dataReceived.bind(this))
       // if (error) {
       //   callback(error)
@@ -129,7 +123,6 @@ const Modem = function() {
 
   modem.dataReceived = function(buffer) {
     data += buffer.toString()
-    // console.log('data',data)
     let parts = data.split('\r\n')
     data = parts.pop()
     parts.forEach(function(part) {
@@ -138,7 +131,6 @@ const Modem = function() {
       newparts = part.split('\n')
 
       newparts.forEach(function(newpart) {
-        console.log(newpart)
         if (newpart.substr(0, 6) == '+CMTI:') { // New Message Indicatpr with SIM Card ID, After Recieving Read The DMessage From the SIM Card
           newpart = newpart.split(',')
           modem.ReadSMSByID(newpart[1], function(res) {})
@@ -202,7 +194,6 @@ const Modem = function() {
               returnResult = true
             }
           } else if (modem.queue[0] && (modem.queue[0]['command'].substr(0, 7) == 'AT+CMGS')) { // Sending of Message if with response ok.. Then Message was sent successfully.. If Error then Message Sending Failed
-            console.log('test')
             resultData = {
               status: 'success',
               request: 'SendSMS',
@@ -272,7 +263,6 @@ const Modem = function() {
   }
 
   modem.ReadSMSByID = function(id, callback) {
-    // console.log(id)
     modem.executeCommand(`AT+CMGR=${id}`, function(data) {}, true)
   }
 
@@ -426,7 +416,6 @@ const Modem = function() {
 
     let item = new EventEmitter()
     if (messageID) {
-      console.log(messageID)
       item.messageID = messageID
       item.message = message
       item.recipient = recipient

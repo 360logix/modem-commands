@@ -14,15 +14,6 @@ let modemOptions = {
   onNewMessage: true,
   onNewMessageIndicator: true
 }
-// let device = '/dev/tty.usbserial10'
-
-// modem.listOpenPorts()
-//   .then(result => {
-//     console.log('listOpenPorts:result', result)
-//   })
-//   .catch(error => {
-//     console.log('listOpenPorts:error', error)
-//   })
 
 modem.listOpenPorts((err, result)=>{
   console.log(result)
@@ -37,14 +28,20 @@ setInterval(() => {
     console.log(`Serial port ${modem.port.path} is open`)
   }
 }, 6000)
-//
-//
-// modem.on('open', (data) => {
-//   modem.initializeModem((response) => {
-//     console.log(response)
-//     console.log('init')
-//
-//   })
+
+modem.on('open', (data) => {
+  console.log(data);
+  modem.initializeModem((response) => {
+    console.log(response)
+  })
+
+/// Change the Mode of the Modem to SMS or PDU (Callback, "SMS"|"PDU")
+  modem.modemMode((response) => {
+    console.log(response)
+  }, "PDU")
+
+
+});
 //
 //   modem.modemMode((response) => {
 //     console.log(response)

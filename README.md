@@ -61,6 +61,24 @@ Output:
     status: 'Online'
   }
 }
+
+///Initialize Modem by Sending an AT Command ///
+modem.initializeModem((response) => {
+  console.log(response)
+})
+
+output:
+{ status: 'success',
+  request: 'modemInitialized',
+  data: 'Modem Successfully Initialized' }
+
+
+/// Change the Mode of the Modem to PDU or SMS
+/// Change the Mode of the Modem to SMS or PDU (Callback, "SMS"|"PDU")
+  modem.modemMode((response) => {
+    console.log(response)
+  }, "PDU")
+
 ```
 
 ## Events
