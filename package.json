@@ -1,6 +1,6 @@
 {
   "name": "modem-commands",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Allows you to use your GSM modems on node. It offers a very simple API",
   "main": "modem-commands/",
   "scripts": {
