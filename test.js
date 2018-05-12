@@ -22,7 +22,8 @@ var device = '/dev/tty.usbserial'
 setInterval(() => {
   if (!modem.isOpened) {
     modem.open(device,modemOptions, (err,result) => {
-      console.log(result)
+      console.log(err)
+      console.log('open callbac', result)
     })
   } else {
     console.log(`Serial port ${modem.port.path} is open`)
@@ -30,15 +31,24 @@ setInterval(() => {
 }, 6000)
 
 modem.on('open', (data) => {
-  console.log(data);
+  // console.log(data);
   modem.initializeModem((response) => {
-    console.log(response)
+    console.log('response',response)
   })
 
 /// Change the Mode of the Modem to SMS or PDU (Callback, "SMS"|"PDU")
   modem.modemMode((response) => {
     console.log(response)
   }, "PDU")
+
+  modem.sendSMS("09498893309", "Message Number One", function(response){
+    console.log('messgae status',response)
+  })
+
+  modem.sendSMS("09498893309", "Message Number Two", function(response){
+    console.log('messgae status',response)
+  })
+
 
 
 });

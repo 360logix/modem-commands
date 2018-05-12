@@ -79,6 +79,11 @@ output:
     console.log(response)
   }, "PDU")
 
+  output:
+  { status: 'success',
+  request: 'modemMode',
+  data: 'PDU_Mode' }
+
 ```
 
 ## Events
