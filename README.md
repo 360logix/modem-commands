@@ -4,9 +4,15 @@
 > modem-commands allows you to use your GSM modems on node.  It supports the following
 * Sending SMS messages
 * Receiving SMS messages
+* Message and Command Queue
+* Check SIM Card
+* Delete all messages in SIM memory
 
-
-## Installation / Getting Started
+## Installation
+```
+$ npm install --save modem-comannds
+```
+## Setting Up
 
 ```
 Accepts the following options:
@@ -28,7 +34,9 @@ let modemOptions = {
 
 let modem = require('modem-commands').Modem()
 
-//LIST ALL OPEN PORTS//
+```
+##List All Open Ports
+```
 modem.listOpenPorts((err, result)=>{
   console.log(result)
 })
@@ -49,7 +57,9 @@ Output:
     vendorId: undefined,
     productId: undefined } ]
 
-//// Connect to the Modem ///////
+```
+## Connect to GSM Modem
+```
 
 let device = '/dev/tty.usbserial'
 
@@ -75,10 +85,9 @@ output:
 { status: 'success',
   request: 'modemInitialized',
   data: 'Modem Successfully Initialized' }
-
-
-/// Change the Mode of the Modem to PDU or SMS
-/// Change the Mode of the Modem to SMS or PDU (Callback, "SMS"|"PDU")
+```
+## Change Modem Mode to SMS or PDU
+```
   modem.modemMode((response) => {
     console.log(response)
   }, "PDU")
