@@ -35,8 +35,13 @@ setInterval(() => {
 
 modem.on('open', (data) => {
   // console.log(data);
+
   modem.initializeModem((response) => {
     console.log('response',response)
+  })
+
+  modem.deleteAllSimMessages(function(response){
+    console.log(response)
   })
 
 /// Change the Mode of the Modem to SMS or PDU (Callback, "SMS"|"PDU")
@@ -44,17 +49,18 @@ modem.on('open', (data) => {
     console.log(response)
   }, "PDU")
 
-  modem.sendSMS("09498893309", "Test One", function(response){
-    console.log('messgae status',response)
-  })
-
-  modem.sendSMS("09498893309", "Test One", function(response){
-    console.log('messgae status',response)
-  })
-
-
+  for(var i=1;i<=100;i++){
+    modem.sendSMS("09498893309", `Test  ${i}`, function(response){
+      console.log('messgae status',response)
+    })
+  }
 
 });
+
+modem.on('onNewMessage', (data) => {
+  console.log(data)
+})
+
 //
 //   modem.modemMode((response) => {
 //     console.log(response)

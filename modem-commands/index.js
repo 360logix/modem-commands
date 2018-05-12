@@ -94,7 +94,6 @@ const Modem = function() {
       newparts = part.split('\n')
       newparts.forEach(function(newpart) {
         let pduTest = /[0-9A-Fa-f]{6}/g
-
         if (newpart.substr(0, 6) == '+CMTI:') { // New Message Indicatpr with SIM Card ID, After Recieving Read The DMessage From the SIM Card
           newpart = newpart.split(',')
           modem.ReadSMSByID(newpart[1], function(res) {})
@@ -193,7 +192,6 @@ const Modem = function() {
               }
               modem.emit('onNewMessageIndicator', resultData)
               modem.emit('onNewMessage', newMessage)
-
             }
             re.lastIndex = 0 // be sure to reset the index after using .text()
             if ((newpart == ">" || newpart == 'OK') && resultData) {
@@ -423,14 +421,12 @@ const Modem = function() {
     if (item.timeout == undefined) //Default timeout it 60 seconds. Send false to disable timeouts.
       item.timeout = 60000
     if (priority) {
-      this.queue.unshift(item)
-      if (this.queue.length > 1) {
-        this.queue.splice(1, 0, item)
-      } else {
-        this.queue.unshift(item)
-      }
       // this.queue.unshift(item)
-
+      if (this.queue.length > 1) {
+        this.queue.splice(2, 0, item)
+      } else {
+        this.queue.push(item)
+      }
     } else {
       this.queue.push(item)
     }
@@ -445,7 +441,7 @@ const Modem = function() {
       this.emit('close')
       return
     }
-    //Someone else is running. Wait.
+    //Wait Modem is in use...
     if (this.isLocked)
       return
 
@@ -488,7 +484,6 @@ const Modem = function() {
       data: simCardCheck
     })
   }
-
   return modem
 }
 

@@ -1,8 +1,12 @@
-# modem-commands
+# GSM Modem Commands (modem-commands)
 
-Very simple way to communicate with a GSM modem
+## Description
+> modem-commands allows you to use your GSM modems on node.  It supports the following
+* Sending SMS messages
+* Receiving SMS messages
 
-## Getting Started
+
+## Installation / Getting Started
 
 ```
 Accepts the following options:
