@@ -35,7 +35,7 @@ let modemOptions = {
 let modem = require('modem-commands').Modem()
 
 ```
-##List All Open Ports
+## List All Open Ports
 ```
 modem.listOpenPorts((err, result)=>{
   console.log(result)
