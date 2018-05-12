@@ -97,6 +97,16 @@ output:
   request: 'modemMode',
   data: 'PDU_Mode' }
 
+  modem.modemMode((response) => {
+    console.log(response)
+  }, "SMS")
+
+  output:
+  { status: 'success',
+  request: 'modemMode',
+  data: 'SMS_Mode' }
+
+
 ```
 
 ## Events
