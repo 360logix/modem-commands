@@ -3,18 +3,15 @@ let pdu = require('pdu')
 let EventEmitter = require('events').EventEmitter
 
 const Modem = function() {
-
   let modem = new EventEmitter()
   let data = ''
   let resultData = {}
   let timeouts = {}
-
+  let returnResult = false
   modem.queue = []
-  modem.partials = {}
+  modem.jobID = 1
   modem.isLocked = false
   modem.isOpened = false
-  let returnResult = false
-  modem.job_id = 1
 
   modem.close = function(callback) {
     if (callback == undefined) {
@@ -45,6 +42,17 @@ const Modem = function() {
   }
 
   modem.open = function(device, options, callback) {
+    if (callback == undefined) {
+      return new Promise((resolve, reject) => {
+        modem.open((error, result) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(result)
+          }
+        })
+      })
+    }
     if (options) options['parser'] = SerialPort.parsers.raw
     modem.port = SerialPort(device, options, (error) => {
       let result = {status: 'success', request: 'connectModem', data: {modem: modem.port.path,status: 'Online'}}
@@ -81,16 +89,11 @@ const Modem = function() {
     let parts = data.split('\r\n')
     data = parts.pop()
     parts.forEach(function(part) {
-
       let newparts = []
       newparts = part.split('\r')
       newparts = part.split('\n')
-
       newparts.forEach(function(newpart) {
-        console.log(newpart)
         let pduTest = /[0-9A-Fa-f]{6}/g
-
-
 
         if (newpart.substr(0, 6) == '+CMTI:') { // New Message Indicatpr with SIM Card ID, After Recieving Read The DMessage From the SIM Card
           newpart = newpart.split(',')
@@ -166,7 +169,6 @@ const Modem = function() {
               }
             }
             if ((newpart == ">" || newpart == 'OK') && resultData) {
-              console.log('callback')
               returnResult = true
             }else if(newpart=='ERROR'){
               resultData = {
@@ -180,7 +182,6 @@ const Modem = function() {
                 }
               }
               returnResult = true
-
             }
           } else if (modem.queue[0] && (modem.queue[0]['command'].substr(0, 7) == 'AT+CMGR')) { // Get New Message From SIM Card
             let re = /[0-9A-Fa-f]{6}/g
@@ -225,10 +226,32 @@ const Modem = function() {
   }
 
   modem.ReadSMSByID = function(id, callback) {
+    if (callback == undefined) {
+      return new Promise((resolve, reject) => {
+        modem.ReadSMSByID((error, result) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(result)
+          }
+        })
+      })
+    }
     modem.executeCommand(`AT+CMGR=${id}`, function(data) {}, true)
   }
 
   modem.checkSIMMemory = function(callback, priority) {
+    if (callback == undefined) {
+      return new Promise((resolve, reject) => {
+        modem.checkSIMMemory((error, result) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(result)
+          }
+        })
+      })
+    }
     if (priority == null) priority = false
     modem.executeCommand(`AT+CPMS='` + `SM'`, function(data) {
       callback(data)
@@ -236,24 +259,21 @@ const Modem = function() {
   }
 
   modem.initializeModem = function(callback, priority) {
+    if (callback == undefined) {
+      return new Promise((resolve, reject) => {
+        modem.initializeModem((error, result) => {
+          if (error) {
+            reject(error)
+          } else {
+            resolve(result)
+          }
+        })
+      })
+    }
     if (priority == null) priority = false
-    // modem.executeCommand('ATZ', function(data) {
-    //   callback(data)
-    // }, false, 30000)
     modem.executeCommand('ATZ', function(data) {
       callback(data)
     }, false, 30000)
-
-
-    // modem.executeCommand('AT+CFUN=0', function(data) {
-    //   callback(data)
-    // }, false, 5000)
-    // modem.executeCommand('AT+CFUN=1', function(data) {
-    //   callback(data)
-    // }, false, 5000)
-    // modem.executeCommand('AT+CFUN=1', function(data) {
-    //   callback(data)
-    // }, priority, 5000)
   }
 
   modem.modemMode = function(callback, priority, timeout, mode) {
@@ -300,9 +320,6 @@ const Modem = function() {
           receiver: number,
           encoding: '16bit'
         })
-
-
-
         modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}`, function(data) {}, false, 100);
         modem.executeCommand(`${pduMessage.toString()}`+'\x1a', function(data) {
           var channel = ''
@@ -325,29 +342,6 @@ const Modem = function() {
           modem.emit(channel, result)
           callback(result)
         }, false, 30000,messageID, message, number);
-        //
-        // modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}\n${pduMessage.toString()}`+'\x1a', function(data) {
-        //   var channel = ''
-        //   if(data.status == "Fail"){
-        //     channel = 'onMessageSendingFailed'
-        //   }else{
-        //     channel = 'onMessageSent'
-        //   }
-        //
-        //   var result = {
-        //     status: data.status,
-        //     request: data.request,
-        //     Data: {
-        //       messageId: data.data.messageId,
-        //       message: data.data.message,
-        //       recipient: data.data.recipient,
-        //       response: data.data.response
-        //     }
-        //   }
-        //   modem.emit(channel, result)
-        //   callback(result)
-        // }, false, 30000,messageID, message, number);
-
         callback({
           status: 'Success',
           request: 'sendSMS',
@@ -371,7 +365,6 @@ const Modem = function() {
       })
     }
   }
-
 
   modem.deleteAllSimMessages = function(callback, priority, timeout) {
     if (priority == null) priority = false
@@ -425,7 +418,7 @@ const Modem = function() {
     item.command = command
     item.callback = c
     item.add_time = new Date()
-    item.id = ++this.job_id
+    item.id = ++this.jobID
     item.timeout = timeout
     if (item.timeout == undefined) //Default timeout it 60 seconds. Send false to disable timeouts.
       item.timeout = 60000

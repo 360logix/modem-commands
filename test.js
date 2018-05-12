@@ -22,8 +22,11 @@ var device = '/dev/tty.usbserial'
 setInterval(() => {
   if (!modem.isOpened) {
     modem.open(device,modemOptions, (err,result) => {
-      console.log(err)
-      console.log('open callbac', result)
+      if(err){
+        console.log(err)
+      }else{
+        console.log(result)
+      }
     })
   } else {
     console.log(`Serial port ${modem.port.path} is open`)
