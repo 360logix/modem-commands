@@ -46,70 +46,19 @@ const Modem = function() {
 
   modem.open = function(device, options, callback) {
     if (options) options['parser'] = SerialPort.parsers.raw
-
-    // if (typeof callback === 'function') {
-    //   modem.port = SerialPort(device, options, (err) => {
-    //     if (err) {
-    //       callback(err, null)
-    //     } else {
-    //       callback(null, {
-    //         status: 'success',
-    //         request: 'connectModem',
-    //         data: {
-    //           comName: modem.port.path,
-    //           status: 'Online'
-    //         }
-    //       })
-    //     }
-    //   })
-    // } else {
-    //   modem.port = SerialPort(device, options)
-    //   callback = options
-    // }
-
-    // if (callback === undefined) {
-    //   return new Promise((resolve, reject) => {
-    //     modem.open(device, options, (error, result) => {
-    //       if (error) {
-    //         reject({status:'Fail', data:error})
-    //       } else {
-    //         resolve(result)
-    //       }
-    //     })
-    //   })
-    // }
-
     modem.port = SerialPort(device, options, (error) => {
+      let result = {status: 'success', request: 'connectModem', data: {modem: modem.port.path,status: 'Online'}}
       if (error) {
         callback(error)
       } else {
-        callback(null, {
-          status: 'success',
-          request: 'connectModem',
-          data: {
-            modem: modem.port.path,
-            status: 'Online'
-          }
-        })
+        modem.emit('open', result)
+        callback(null, result)
       }
     })
 
     modem.port.on('open', function() {
       modem.isOpened = true
-      modem.emit('open', modem.port.path)
       modem.port.on('data', modem.dataReceived.bind(this))
-      // if (error) {
-      //   callback(error)
-      // } else {
-      //   callback({
-      //     status: 'success',
-      //     request: 'connectModem',
-      //     data: {
-      //       comName: modem.port.path,
-      //       status: 'Online'
-      //     }
-      //   })
-      // }
     })
 
     modem.port.on('close', function() {
@@ -129,16 +78,20 @@ const Modem = function() {
 
   modem.dataReceived = function(buffer) {
     data += buffer.toString()
-    // console.log('data',data)
     let parts = data.split('\r\n')
     data = parts.pop()
     parts.forEach(function(part) {
+
       let newparts = []
       newparts = part.split('\r')
       newparts = part.split('\n')
 
       newparts.forEach(function(newpart) {
         console.log(newpart)
+        let pduTest = /[0-9A-Fa-f]{6}/g
+
+
+
         if (newpart.substr(0, 6) == '+CMTI:') { // New Message Indicatpr with SIM Card ID, After Recieving Read The DMessage From the SIM Card
           newpart = newpart.split(',')
           modem.ReadSMSByID(newpart[1], function(res) {})
@@ -175,7 +128,7 @@ const Modem = function() {
               }
               returnResult = true
             }
-          } else if (modem.queue[0] && (modem.queue[0]['command'] == 'AT')) { // Query Modem AT to initialize
+          } else if (modem.queue[0] && (modem.queue[0]['command'] == 'ATZ')) { // Query Modem AT to initialize
             resultData = {
               status: 'success',
               request: 'modemInitialized',
@@ -189,20 +142,19 @@ const Modem = function() {
               resultData = {
                 status: 'success',
                 request: 'modemMode',
-                data: 'Modem Successfully Changed to PDU Mode'
+                data: 'PDU_Mode'
               }
             } else if (modem.queue[0]['command'].substr(8, 8) == '1') {
               resultData = {
                 status: 'success',
                 request: 'modemMode',
-                data: 'Modem Successfully Changed to SMS Mode'
+                data: 'SMS_Mode'
               }
             }
             if ((newpart == ">" || newpart == 'OK') && resultData) {
               returnResult = true
             }
-          } else if (modem.queue[0] && (modem.queue[0]['command'].substr(0, 7) == 'AT+CMGS')) { // Sending of Message if with response ok.. Then Message was sent successfully.. If Error then Message Sending Failed
-            console.log('test')
+          } else if (modem.queue[0] && (modem.queue[0]['command'].substr(0, 7) == 'AT+CMGS=' || pduTest.test(modem.queue[0]['command']))) { // Sending of Message if with response ok.. Then Message was sent successfully.. If Error then Message Sending Failed
             resultData = {
               status: 'success',
               request: 'SendSMS',
@@ -214,6 +166,7 @@ const Modem = function() {
               }
             }
             if ((newpart == ">" || newpart == 'OK') && resultData) {
+              console.log('callback')
               returnResult = true
             }else if(newpart=='ERROR'){
               resultData = {
@@ -272,7 +225,6 @@ const Modem = function() {
   }
 
   modem.ReadSMSByID = function(id, callback) {
-    // console.log(id)
     modem.executeCommand(`AT+CMGR=${id}`, function(data) {}, true)
   }
 
@@ -285,9 +237,20 @@ const Modem = function() {
 
   modem.initializeModem = function(callback, priority) {
     if (priority == null) priority = false
-    modem.executeCommand('AT', function(data) {
+    // modem.executeCommand('ATZ', function(data) {
+    //   callback(data)
+    // }, false, 30000)
+    modem.executeCommand('ATZ', function(data) {
       callback(data)
-    }, priority, 5000)
+    }, false, 30000)
+
+
+    // modem.executeCommand('AT+CFUN=0', function(data) {
+    //   callback(data)
+    // }, false, 5000)
+    // modem.executeCommand('AT+CFUN=1', function(data) {
+    //   callback(data)
+    // }, false, 5000)
     // modem.executeCommand('AT+CFUN=1', function(data) {
     //   callback(data)
     // }, priority, 5000)
@@ -310,7 +273,7 @@ const Modem = function() {
       }
       modem.executeCommand(`AT+CMGF=${modemMode}`, function(data) {
         callback(data)
-      }, priority, timeout)
+      }, false, 30000)
     } else {
       callback({
         status: 'Fail',
@@ -337,14 +300,19 @@ const Modem = function() {
           receiver: number,
           encoding: '16bit'
         })
-        modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}\n\r${pduMessage.toString()}`+'\x1a', function(data) {
+
+
+
+        modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}`, function(data) {}, false, 100);
+        modem.executeCommand(`${pduMessage.toString()}`+'\x1a', function(data) {
           var channel = ''
           if(data.status == "Fail"){
             channel = 'onMessageSendingFailed'
           }else{
             channel = 'onMessageSent'
           }
-          modem.emit(channel, {
+
+          var result = {
             status: data.status,
             request: data.request,
             Data: {
@@ -353,9 +321,32 @@ const Modem = function() {
               recipient: data.data.recipient,
               response: data.data.response
             }
-          })
-
-        }, false, 30000, messageID, message, number);
+          }
+          modem.emit(channel, result)
+          callback(result)
+        }, false, 30000,messageID, message, number);
+        //
+        // modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}\n${pduMessage.toString()}`+'\x1a', function(data) {
+        //   var channel = ''
+        //   if(data.status == "Fail"){
+        //     channel = 'onMessageSendingFailed'
+        //   }else{
+        //     channel = 'onMessageSent'
+        //   }
+        //
+        //   var result = {
+        //     status: data.status,
+        //     request: data.request,
+        //     Data: {
+        //       messageId: data.data.messageId,
+        //       message: data.data.message,
+        //       recipient: data.data.recipient,
+        //       response: data.data.response
+        //     }
+        //   }
+        //   modem.emit(channel, result)
+        //   callback(result)
+        // }, false, 30000,messageID, message, number);
 
         callback({
           status: 'Success',
@@ -426,7 +417,6 @@ const Modem = function() {
 
     let item = new EventEmitter()
     if (messageID) {
-      console.log(messageID)
       item.messageID = messageID
       item.message = message
       item.recipient = recipient
@@ -440,12 +430,14 @@ const Modem = function() {
     if (item.timeout == undefined) //Default timeout it 60 seconds. Send false to disable timeouts.
       item.timeout = 60000
     if (priority) {
-      // this.queue.unshift(item)
+      this.queue.unshift(item)
       if (this.queue.length > 1) {
         this.queue.splice(1, 0, item)
       } else {
         this.queue.unshift(item)
       }
+      // this.queue.unshift(item)
+
     } else {
       this.queue.push(item)
     }
@@ -484,7 +476,7 @@ const Modem = function() {
         this.release()
         this.executeNext()
       }.bind(this), item.timeout)
-    modem.port.write(item['command'] + '\r\n')
+    modem.port.write(item['command'] + '\r')
   }
 
   /////////// Functions ////////////////////////////////
