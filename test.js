@@ -41,11 +41,11 @@ modem.on('open', (data) => {
     console.log(response)
   }, "PDU")
 
-  modem.sendSMS("09498893309", "Message Number One", function(response){
+  modem.sendSMS("09498893309", "Test One", function(response){
     console.log('messgae status',response)
   })
 
-  modem.sendSMS("09498893309", "Message Number Two", function(response){
+  modem.sendSMS("09498893309", "Test One", function(response){
     console.log('messgae status',response)
   })
 

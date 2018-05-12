@@ -303,7 +303,7 @@ const Modem = function() {
 
 
 
-        modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}`, function(data) {}, false, 1);
+        modem.executeCommand(`AT+CMGS=${(pduMessage.toString().length/2)-1}`, function(data) {}, false, 100);
         modem.executeCommand(`${pduMessage.toString()}`+'\x1a', function(data) {
           var channel = ''
           if(data.status == "Fail"){
